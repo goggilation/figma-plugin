@@ -1,0 +1,17 @@
+{
+  "name": "add-icon-artboard",
+  "version": "1.0.0",
+  "description": "Simple plugin that adds 24x24 artboard to page",
+  "main": "code.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.16.1"
+  },
+  "dependencies": {
+    "typescript": "^4.0.3"
+  }
+}
