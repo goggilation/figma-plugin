@@ -1,7 +1,7 @@
 {
   "name": "create-boilerplate",
   "version": "1.0.0",
-  "description": "Your Figma plugin",
+  "description": "Plugin that creates the boilerplate for the Customer Connect Design Process",
   "main": "code.js",
   "scripts": {
     "build": "tsc -p tsconfig.json"

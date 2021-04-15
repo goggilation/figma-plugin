@@ -1,7 +1,7 @@
 {
   "name": "add-icon-artboards",
   "version": "1.0.0",
-  "description": "Your Figma Plugin",
+  "description": "Simple plugin that renders 24x24 pixel artboards. Perfect for when you are setting up a new icon library 😉",
   "main": "code.js",
   "scripts": {
     "build": "tsc -p tsconfig.json"

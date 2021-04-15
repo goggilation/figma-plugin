@@ -10,6 +10,9 @@
     .body2{
         font-size: 14px;
     }
+    .caption{
+        font-size: 12px;
+    }
     button{
         font-size: 16px;
         background: #182871;
@@ -17,8 +20,12 @@
         height: 36px;
         width: 100%;
         text-align: center;
-        padding: 0 16px;
         border: none;
+        margin-bottom: 8px;
+    }
+    button:hover{
+        background-color: #0f1944;
+        cursor: pointer;
     }
     body{
         height: 100px;
@@ -27,12 +34,17 @@
 
 <div id="wrapper">
     <h1>Hi! 👋</h1>
-<p id="body1">I've just setup your starting pages. Read more about how to use these in our WoW document over at #team-ux.</p>
-<p class="body2">If you accidentally clicked on this plugin, you can just undo via CMD/CTRL + Z 😉</p>
-<button id="close">Close</button>
+<p id="body1">This plugin helps you add the execution framework pages that we use according to our design process. Read more about that in the slack channel! #team-ux.</p>
+<p class="body2">Choose if you want to add pages to your current document or replace all pages with the design process boilerplate</p>
+<button id="replace">Replace with boilerplate</button>
+<button id="add">Add to current document</button>
+<p class="caption">P.S If you accidentally clicked the wrong one, you can just undo via CMD/CTRL + Z 😉</p>
 </div>
 <script>
-    document.getElementById('close').onclick = () => {
-      parent.postMessage({ pluginMessage: { type: 'close' } }, '*')
-    }
+    document.getElementById('replace').onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'replace' } }, '*')
+    };
+    document.getElementById('add').onclick = () => {
+      parent.postMessage({ pluginMessage: { type: 'add' } }, '*')
+    };
 </script>
