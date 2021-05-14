@@ -23,6 +23,16 @@
 		},
 		{
 			"type": "typescript",
+			"tsconfig": "cc-data-populate/tsconfig.json",
+			"option": "watch",
+			"problemMatcher": [
+				"$tsc-watch"
+			],
+			"group": "build",
+			"label": "tsc: watch - cc-data-populate/tsconfig.json"
+		},
+		{
+			"type": "typescript",
 			"tsconfig": "create-boilerplate/tsconfig.json",
 			"option": "watch",
 			"problemMatcher": [

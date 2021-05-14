@@ -12,29 +12,34 @@ figma.ui.resize(400, 425);
 // Setup pages for boilerplate
 const pages = [
     {
-        name: "🏷 COVER PAGE",
-        purpose: "Showing a clear image in the project overview",
-        what: "The cover image for this feature",
-    },
-    {
-        name: "📏 FINAL",
+        name: "📏 Delivery",
         purpose: "Source of truth, handoff to developers, inspiration for new designs, sharing with stakeholders",
         what: "UI specification, hifi-sketches with correct components etc.",
     },
     {
-        name: "🧙 IDEATE",
-        purpose: "Try out ideas, document iterations, discussing with stakeholders",
-        what: "Wireframes, prototypes, messy artboards",
+        name: "🧪 Prototype",
+        purpose: "Prototypes of select portions from the ideations",
+        what: "Specific prototypes regarding on or several flows thought up during ideation",
     },
     {
-        name: "💡 DEFINE",
-        purpose: " A dedicated space for 'non-UI-deliveries'",
+        name: "🧙 Ideations",
+        purpose: "Try out ideas, document iterations, discussing with stakeholders",
+        what: "Wireframes, messy artboards, Rough flows",
+    },
+    {
+        name: "🔎 Goal Definement",
+        purpose: "Goal statement, wanted effect, research insights, inspo",
+        what: "Compile key starting points for the design work into one space",
+    },
+    {
+        name: "💡 Investigation",
+        purpose: "Starting steps end up here.",
         what: "User flows, service blueprints, storyboards, effect mapping",
     },
     {
-        name: "🔎 UNDERSTAND",
-        purpose: "Goal statement, wanted effect, research insights, inspo",
-        what: "Compile key starting points for the design work into one space",
+        name: "🏷 COVER PAGE",
+        purpose: "Showing a clear image in the project overview",
+        what: "The cover image for this feature",
     },
 ];
 const resizeFrame = (frame, xValue, yValue, wValue = 0, hValue = 0) => {

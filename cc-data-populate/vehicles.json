@@ -1,0 +1,15 @@
+{
+    "displayName": "Betty",
+    "make": "Volvo FH12 42R",
+    "regNr": "CLP 788",
+    "chassiNr": "SCAR200133",
+    "vin": "Z00SC0000HQ200133",
+    "services": [
+        "Driver Times",
+        "Positioning",
+        "Positioning+",
+        "Fuel & Environment"
+        ],
+    "euroClass": "EURO 5",
+    "profile": "Long Haul Smooth"
+}

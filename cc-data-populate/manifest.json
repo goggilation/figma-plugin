@@ -1,0 +1,7 @@
+{
+  "name": "Customer Connect Data Populate",
+  "id": "971495279658082891",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html"
+}
