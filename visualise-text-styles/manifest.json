@@ -1,0 +1,9 @@
+{
+  "name": "Visualise Text Styles",
+  "id": "1095700650732863951",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": [
+    "figma"
+  ]
+}

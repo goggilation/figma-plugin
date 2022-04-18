@@ -1,0 +1,14 @@
+{
+  "name": "Get-Colors-In-Frame",
+  "version": "1.0.0",
+  "description": "Get all colors inside a frame",
+  "main": "code.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "author": "",
+  "license": "",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.33.0"
+  }
+}

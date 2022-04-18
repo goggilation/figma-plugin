@@ -1,0 +1,9 @@
+{
+  "name": "Get Colors in Frame",
+  "id": "1015547020412745833",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": [
+    "figma"
+  ]
+}
