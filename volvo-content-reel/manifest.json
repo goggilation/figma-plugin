@@ -2,10 +2,10 @@
   "name": "Volvo Content Reel",
   "id": "1097946063200497096",
   "api": "1.0.0",
-  "main": "code.js",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
   "editorType": [
     "figma",
     "figjam"
-  ],
-  "ui": "ui.html"
+  ]
 }
