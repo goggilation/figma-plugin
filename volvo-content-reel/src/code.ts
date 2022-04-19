@@ -3,8 +3,13 @@ const clone = (val) => {
 };
 
 figma.showUI(__html__, { width: 450, height: 450 });
+figma.ui.postMessage({ type: 'networkRequest', style: 'search' })
 
 figma.ui.onmessage = async (msg) => {
+  if(msg === "load"){
+    figma.ui.postMessage({ type: 'networkRequest', style: 'search' })
+  }
+  console.log(msg)
   //RESIZER
   switch (msg.type) {
     case "resize":
@@ -19,7 +24,7 @@ figma.ui.onmessage = async (msg) => {
     const fillImg = figma.createImage(imageBytes);
     console.log(fillImg);
     for (const node of figma.currentPage.selection) {
-      if (node.type === "FRAME") {
+      if (node.type === "FRAME" || node.type === "RECTANGLE" || node.type === "ELLIPSE" || node.type === "POLYGON" || node.type === "STAR") {
         let fills = clone(node.fills);
         fills[0] =
           {
