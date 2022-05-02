@@ -3,30 +3,59 @@ import "./style/reset.css";
 import "./utils/resizer";
 import configs from "./contentreel.config.js";
 
+let selectionSize = 0;
+let randomArr = [];
+
 let PickitMediaArray = [];
 let currentPage = 1;
+const previewSize = 0;
 
-const loadMoreButton = document.getElementById("load-more");
 const randomButton = document.getElementById("random");
-const itemListDiv = document.getElementById("item-list");
 
-// On network request from the plugin, fetch information from Airtable and send data to PickitMediaArray.
+randomButton.onclick = () => {
+  window.parent.postMessage({ pluginMessage: { do: "random" } }, "*");
+};
+
+const itemListDiv = document.getElementById("item-list");
+const searchBar = <HTMLInputElement>document.getElementById("search");
+const pickitHeaders = {
+  "Pickit-Api-Key": `${configs.PICKIT_API_KEY}`,
+  "Pickit-Api-Secret": `${configs.PICKIT_SECRET}`,
+  "Pickit-Api-Library": "media",
+};
+
+// Event listener for search
+searchBar.addEventListener("keydown", (e) => {
+  let searchTerm = "";
+  if (e.key === "Enter") {
+    searchTerm = searchBar.value;
+    window.parent.postMessage(
+      {
+        pluginMessage: {
+          do: "load",
+          style: "search",
+          searchString: searchTerm,
+        },
+      },
+      "*"
+    );
+  }
+});
+
+// On network request from the plugin, fetch information from Pickit.
 // TODO: Add offset instead of iteratiing on requestmax
 window.onmessage = async (event) => {
-  console.log(event.data.pluginMessage.style)
-  if (
-    event.data.pluginMessage.type === "networkRequest" && event.data.pluginMessage.style === "first-call"
-  ) {
-    fetch(`https://files.pickit.com/api/v2/files?page_limit=25?page=0`, {
-      headers: {
-        "Pickit-Api-Key": `${configs.PICKIT_API_KEY}`, // Pickit API Key retrieved from the API Dashboard.
-        "Pickit-Api-Secret": `${configs.PICKIT_SECRET}`, // Pickit API Secret retrieved from the API Dashboard.
-        "Pickit-Api-Library": "media",
-      },
+  if (event.data.pluginMessage.type === "multiples") {
+    selectionSize = event.data.pluginMessage.size;
+  }
+
+  // On startup run through sample pickit library to get a random array of images to populate with
+  if (event.data.pluginMessage.style === "first-call") {
+    fetch(`https://files.pickit.com/api/v2/files?`, {
+      headers: pickitHeaders,
     })
       .then((res) => res.json())
       .then((response) => {
-        console.log(response);
         // Clear array since I'm just looping through maxRecords
         PickitMediaArray = [];
         const responseArray = response.data;
@@ -35,116 +64,113 @@ window.onmessage = async (event) => {
           PickitMediaArray.push(entry);
         });
       })
+      .then((e) => PopulateView())
       .catch((error) => {
         console.log(error);
       });
   }
 
-  if(event.data.pluginMessage.style === "random" && PickitMediaArray.length >= 1)
-  {
-    const randomImage = PickitMediaArray[Math.floor(Math.random()*PickitMediaArray.length)].file.previews[1];
-    AddImageToUI(randomImage);
+  // Searching renders output with max page size of all found images
+  if (event.data.pluginMessage.style === "search") {
+    fetch(
+      "https://files.pickit.com/api/v2/files?" +
+        new URLSearchParams({
+          page_limit: "200",
+          search: event.data.pluginMessage.searchString,
+        }),
+      {
+        headers: pickitHeaders,
+      }
+    )
+      .then((res) => res.json())
+      .then((response) => {
+        // Clear array since I'm just looping through maxRecords
+        PickitMediaArray = [];
+        const responseArray = response.data;
+        responseArray.map((entry) => {
+          //Loop through entries and add the 'fields' of each entry to the array
+          PickitMediaArray.push(entry);
+        });
+      })
+      .then((e) => {
+        PopulateView();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  // If random, render random image from default array
+  if (
+    event.data.pluginMessage.style === "random" &&
+    PickitMediaArray.length >= 1
+  ) {
+      let randomImage =
+        PickitMediaArray[Math.floor(Math.random() * PickitMediaArray.length)]
+          .file.previews[previewSize];
+      AddImageToUI(randomImage);
   }
 };
 
-// When clicking "List Items" it wil render all items in UI.
-// This should fetch items from remote and render accordingly. Then send messages to code.ts with type and src (text, media)
-// so code can configure UI accordingly
-
-loadMoreButton.onclick = () => {
-  currentPage += 1;
-  window.parent.postMessage(
-    { pluginMessage: { do: "load", style: "load-more" } },
-    "*"
-  );
-
-  PopulateView();
-};
-randomButton.onclick = () => {
-  window.parent.postMessage(
-    { pluginMessage: { do: "load", style: "random" } },
-    "*"
-  );
-};
-
 const AddImageToUI = (image) => {
-  console.log("ADD IMAGE TO UI")
-  console.log(image)
   const img = new Image();
-      img.onload = () => {
-        const width = image.width;
-        const height = image.height;
-        fetch(image.url)
-          .then((response) => response.blob())
-          .then(
-            (blob) =>
-              new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () =>
-                  resolve(new Uint8Array(reader.result as ArrayBuffer));
-                reader.readAsArrayBuffer(blob);
-              })
-          )
-          .then((imageBytes) => {
-            parent.postMessage(
-              {
-                pluginMessage: {
-                  type: "attachment",
-                  width: width,
-                  height: height,
-                  imageBytes,
-                },
-              },
-              "*"
-            );
-          });
-      };
-      img.src = image.url;
-}
+  img.onload = () => {
+    const width = image.width;
+    const height = image.height;
+    fetch(image.url)
+      .then((response) => response.blob())
+      .then(
+        (blob) =>
+          new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () =>
+              resolve(new Uint8Array(reader.result as ArrayBuffer));
+            reader.readAsArrayBuffer(blob);
+          })
+      )
+      .then((imageBytes) => {
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "attachment",
+              width: width,
+              height: height,
+              imageBytes,
+            },
+          },
+          "*"
+        );
+      });
+  };
+  img.src = image.url;
+};
 
-// Button that populates view
-const PopulateView = () => {
+// Populates view with images from pickit
+const PopulateView = async () => {
   if (itemListDiv.innerHTML != null) {
     itemListDiv.innerHTML = "";
   }
 
   PickitMediaArray.map((media) => {
-    const imgFile = media.file.previews[1];
-    const listItem = document.createElement("li");
+    const imgFile = media.file.previews[previewSize];
+    const listItem = document.createElement("div");
     listItem.className = "list-item";
 
-    const descriptions = document.createElement("div");
-
-    const header = document.createElement("p");
-    header.className = "header";
-    const name = document.createTextNode(media.file.name);
-    header.appendChild(name);
-
-    const groupName = document.createElement("p");
-    groupName.className = "group-name";
-    const group = document.createTextNode(media.file.uploaded_at);
-    groupName.appendChild(group);
-
-    descriptions.appendChild(header);
-    descriptions.appendChild(groupName);
-
     const attachment = new Image();
-    attachment.src = imgFile.url;
     attachment.className = "attachment";
+    attachment.width = imgFile.width;
+    attachment.height = imgFile.height;
+    attachment.style.backgroundImage = `url(${imgFile.url})`;
+    attachment.style.backgroundSize = "contain";
+    attachment.style.backgroundPosition = "center";
 
-    listItem.appendChild(descriptions);
+    //listItem.appendChild(descriptions);
     listItem.appendChild(attachment);
 
     itemListDiv.appendChild(listItem);
 
     attachment.onclick = () => {
       AddImageToUI(imgFile);
-    };
-    header.onclick = () => {
-      parent.postMessage(
-        { pluginMessage: { type: "text", data: media.file.name } },
-        "*"
-      );
     };
   });
 };

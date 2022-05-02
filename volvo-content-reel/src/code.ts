@@ -4,10 +4,15 @@ const clone = (val) => {
 
 figma.showUI(__html__, { width: 450, height: 450 });
 figma.ui.postMessage({ type: "networkRequest", style: "first-call" });
+figma.ui.postMessage({ type: "multiples", value: figma.currentPage.selection.length > 1, size: figma.currentPage.selection.length });
 
 figma.ui.onmessage = async (msg) => {
   if (msg.do === "load") {
-    figma.ui.postMessage({ type: "networkRequest", style: msg.style, selectionLength: figma.currentPage.selection.length });
+    figma.ui.postMessage({ type: "networkRequest", style: msg.style, searchString: msg.searchString });
+  }
+
+  if(msg.do === 'random'){
+    figma.ui.postMessage({ type: "multiples", value: true, size: figma.currentPage.selection.length, style: "random" });
   }
 
   //RESIZER
@@ -44,26 +49,30 @@ figma.ui.onmessage = async (msg) => {
       figma.closePlugin("Added image");
     }
 
-    for (const node of figma.currentPage.selection) {
-      if (
-        node.type === "FRAME" ||
-        node.type === "RECTANGLE" ||
-        node.type === "ELLIPSE" ||
-        node.type === "POLYGON" ||
-        node.type === "STAR"
-      ) {
-        let fills = clone(node.fills);
+    figma.currentPage.selection.map((item) => {
+      if( item.type === "FRAME" ||
+      item.type === "RECTANGLE" ||
+      item.type === "ELLIPSE" ||
+      item.type === "POLYGON" ||
+      item.type === "STAR")
+      {
+        console.log(fillImg)
+        let fills = clone(item.fills);
         fills[0] = {
           type: "IMAGE",
           scaleMode: "FILL",
           imageHash: fillImg.hash,
           visible: true,
         };
-        node.fills = fills;
+        item.fills = fills;
       }
-    }
+    })
     figma.closePlugin(`Added image to UI`);
   } else if (msg.type === "text") {
     figma.closePlugin(`Added text to UI`);
   }
 };
+
+figma.on('selectionchange', () => {
+  figma.ui.postMessage({ type: "multiples", size: figma.currentPage.selection.length });
+})

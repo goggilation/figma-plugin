@@ -15,10 +15,16 @@
         fill="#8C8C8C"
       />
     </svg>
-    <img src="<%= require('./logo.svg') %>" />
-    <ul id="item-list">
-    </ul>
-    <button id="random" style="width: 80%; margin: 0 auto;">random</button>
-    <button id="load-more" style="width: 80%; margin: 0 auto;">load more</button>
+    
+    <div class="top">
+    <div class="bar">
+    <input id="search" type="text" class="searchbar" placeholder="search..." />
+  </div>
+
+    <button id="random" class="btn-random" style="width: 80%; margin: 0 auto">I'm feeling lucky</button>
+  </div>
+
+    <div id="item-list"></div>
+    
   </div>
 </div>
