@@ -3,13 +3,13 @@ const clone = (val) => {
 };
 
 figma.showUI(__html__, { width: 450, height: 450 });
-figma.ui.postMessage({ type: 'networkRequest', style: 'search' })
+figma.ui.postMessage({ type: "networkRequest", style: "first-call" });
 
 figma.ui.onmessage = async (msg) => {
-  if(msg === "load"){
-    figma.ui.postMessage({ type: 'networkRequest', style: 'search' })
+  if (msg.do === "load") {
+    figma.ui.postMessage({ type: "networkRequest", style: msg.style, selectionLength: figma.currentPage.selection.length });
   }
-  console.log(msg)
+
   //RESIZER
   switch (msg.type) {
     case "resize":
@@ -20,21 +20,45 @@ figma.ui.onmessage = async (msg) => {
 
   //Read message type. Should add corresponding stuff to the UI depending on type
   if (msg.type === "attachment") {
+    const selection = figma.currentPage.selection;
     const { imageBytes } = msg;
     const fillImg = figma.createImage(imageBytes);
-    console.log(fillImg);
+
+    // If no node is selected, create a new rect with the image
+    if (selection.length <= 0) {
+      const nodes: SceneNode[] = [];
+      let newRect = figma.createRectangle();
+      newRect.resize(msg.width, msg.height);
+      newRect.fills = [
+        {
+          type: "IMAGE",
+          scaleMode: "FILL",
+          imageHash: fillImg.hash,
+          visible: true,
+        },
+      ];
+      figma.currentPage.appendChild(newRect);
+      nodes.push(newRect);
+      figma.currentPage.selection = nodes;
+      figma.viewport.scrollAndZoomIntoView(nodes);
+      figma.closePlugin("Added image");
+    }
+
     for (const node of figma.currentPage.selection) {
-      if (node.type === "FRAME" || node.type === "RECTANGLE" || node.type === "ELLIPSE" || node.type === "POLYGON" || node.type === "STAR") {
+      if (
+        node.type === "FRAME" ||
+        node.type === "RECTANGLE" ||
+        node.type === "ELLIPSE" ||
+        node.type === "POLYGON" ||
+        node.type === "STAR"
+      ) {
         let fills = clone(node.fills);
-        fills[0] =
-          {
-            type: "IMAGE",
-            scaleMode: "FILL",
-            imageHash: fillImg.hash,
-            visible: true,
-          };
-        console.log(fills);
-        console.log(node.fills);
+        fills[0] = {
+          type: "IMAGE",
+          scaleMode: "FILL",
+          imageHash: fillImg.hash,
+          visible: true,
+        };
         node.fills = fills;
       }
     }

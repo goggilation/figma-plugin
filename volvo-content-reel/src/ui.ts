@@ -1,46 +1,49 @@
 import "./style/ui.css";
-import "./style/reset.css"
+import "./style/reset.css";
 import "./utils/resizer";
-import configs from './contentreel.config.js'
+import configs from "./contentreel.config.js";
 
-let AirtableArray = [];
-let newRequestNumber = 3;
+let PickitMediaArray = [];
+let currentPage = 1;
 
 const loadMoreButton = document.getElementById("load-more");
-const populateButton = document.getElementById("list")
-const itemListDiv = document.getElementById("item-list")
+const randomButton = document.getElementById("random");
+const itemListDiv = document.getElementById("item-list");
 
-// On network request from the plugin, fetch information from Airtable and send data to AirtableArray.
+// On network request from the plugin, fetch information from Airtable and send data to PickitMediaArray.
 // TODO: Add offset instead of iteratiing on requestmax
 window.onmessage = async (event) => {
-  if (event.data.pluginMessage.type === "networkRequest" && event.data.pluginMessage.style === 'search' ) {
-    fetch(
-      `https://api.airtable.com/v0/appLyOHUcdPl6D1mB/portfolioImgs?maxRecords=${newRequestNumber}&view=Grid%20view`,
-      {
-        headers: {
-          Authorization: `Bearer ${configs.AIRTABLE_API_}`,
-          "Content-Type": "application/json",
-        },
-      }
-    )
+  console.log(event.data.pluginMessage.style)
+  if (
+    event.data.pluginMessage.type === "networkRequest" && event.data.pluginMessage.style === "first-call"
+  ) {
+    fetch(`https://files.pickit.com/api/v2/files?page_limit=25?page=0`, {
+      headers: {
+        "Pickit-Api-Key": `${configs.PICKIT_API_KEY}`, // Pickit API Key retrieved from the API Dashboard.
+        "Pickit-Api-Secret": `${configs.PICKIT_SECRET}`, // Pickit API Secret retrieved from the API Dashboard.
+        "Pickit-Api-Library": "media",
+      },
+    })
       .then((res) => res.json())
-      .then((data) => {
+      .then((response) => {
+        console.log(response);
         // Clear array since I'm just looping through maxRecords
-        AirtableArray = [];
-        const responseArray = data.records;
+        PickitMediaArray = [];
+        const responseArray = response.data;
         responseArray.map((entry) => {
-          //Loop through entries and add the 'fields' of each entry to the array 
-          console.log(entry);
-          AirtableArray.push(entry.fields);
-          console.log(AirtableArray);
+          //Loop through entries and add the 'fields' of each entry to the array
+          PickitMediaArray.push(entry);
         });
       })
       .catch((error) => {
         console.log(error);
       });
+  }
 
-      PopulateView()
-    //window.parent.postMessage({pluginMessage: base}, '*')
+  if(event.data.pluginMessage.style === "random" && PickitMediaArray.length >= 1)
+  {
+    const randomImage = PickitMediaArray[Math.floor(Math.random()*PickitMediaArray.length)].file.previews[1];
+    AddImageToUI(randomImage);
   }
 };
 
@@ -49,51 +52,29 @@ window.onmessage = async (event) => {
 // so code can configure UI accordingly
 
 loadMoreButton.onclick = () => {
-  newRequestNumber += 3;
-  window.parent.postMessage({ pluginMessage: "load" }, "*");
-  
+  currentPage += 1;
+  window.parent.postMessage(
+    { pluginMessage: { do: "load", style: "load-more" } },
+    "*"
+  );
+
+  PopulateView();
+};
+randomButton.onclick = () => {
+  window.parent.postMessage(
+    { pluginMessage: { do: "load", style: "random" } },
+    "*"
+  );
 };
 
-// Button that populates view
-const PopulateView = () => {
-  if (itemListDiv.innerHTML != null) {
-    itemListDiv.innerHTML = "";
-  }
-
-  AirtableArray.map((m) => {
-    const listItem = document.createElement("li");
-    listItem.className = "list-item";
-
-    const descriptions = document.createElement("div");
-
-    const header = document.createElement("p");
-    header.className = "header";
-    const name = document.createTextNode(m.Name);
-    header.appendChild(name);
-
-    const groupName = document.createElement("p");
-    groupName.className = "group-name";
-    const group = document.createTextNode(m.Group);
-    groupName.appendChild(group);
-
-    descriptions.appendChild(header);
-    descriptions.appendChild(groupName);
-
-    const attachment = new Image();
-    attachment.src = m.imgLink;
-    attachment.className = "attachment";
-
-    listItem.appendChild(descriptions);
-    listItem.appendChild(attachment);
-
-    itemListDiv.appendChild(listItem);
-
-    attachment.onclick = () => {
-      const img = new Image();
+const AddImageToUI = (image) => {
+  console.log("ADD IMAGE TO UI")
+  console.log(image)
+  const img = new Image();
       img.onload = () => {
-        const width = img.width;
-        const height = img.height;
-        fetch(m.imgLink)
+        const width = image.width;
+        const height = image.height;
+        fetch(image.url)
           .then((response) => response.blob())
           .then(
             (blob) =>
@@ -109,6 +90,8 @@ const PopulateView = () => {
               {
                 pluginMessage: {
                   type: "attachment",
+                  width: width,
+                  height: height,
                   imageBytes,
                 },
               },
@@ -116,12 +99,50 @@ const PopulateView = () => {
             );
           });
       };
-      img.src = m.imgLink;
-      //console.log(`should add ${m.Name} to UI :)`);
+      img.src = image.url;
+}
+
+// Button that populates view
+const PopulateView = () => {
+  if (itemListDiv.innerHTML != null) {
+    itemListDiv.innerHTML = "";
+  }
+
+  PickitMediaArray.map((media) => {
+    const imgFile = media.file.previews[1];
+    const listItem = document.createElement("li");
+    listItem.className = "list-item";
+
+    const descriptions = document.createElement("div");
+
+    const header = document.createElement("p");
+    header.className = "header";
+    const name = document.createTextNode(media.file.name);
+    header.appendChild(name);
+
+    const groupName = document.createElement("p");
+    groupName.className = "group-name";
+    const group = document.createTextNode(media.file.uploaded_at);
+    groupName.appendChild(group);
+
+    descriptions.appendChild(header);
+    descriptions.appendChild(groupName);
+
+    const attachment = new Image();
+    attachment.src = imgFile.url;
+    attachment.className = "attachment";
+
+    listItem.appendChild(descriptions);
+    listItem.appendChild(attachment);
+
+    itemListDiv.appendChild(listItem);
+
+    attachment.onclick = () => {
+      AddImageToUI(imgFile);
     };
     header.onclick = () => {
       parent.postMessage(
-        { pluginMessage: { type: "text", data: m.Name } },
+        { pluginMessage: { type: "text", data: media.file.name } },
         "*"
       );
     };
