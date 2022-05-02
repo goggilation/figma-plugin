@@ -50,8 +50,11 @@
 <button id="vin">VIN numbers</button>
 <button id="services">Connected services</button>
 <button id="model">Model types</button>
-<h4>User</h4>
-<button id="users">Usernames</button>
+<h4>Drivers</h4>
+<button id="users">Driver Names</button>
+<button disabled id="users">Phone numbers</button>
+<button disabled id="users">Emails</button>
+<button disabled id="users">Activity</button>
 <h4>Positional</h4>
 <button id="street-position">Street name</button>
 <button id="cancel">Cancel</button>
@@ -82,5 +85,28 @@ document.getElementById('street-position').onclick = () => {
 document.getElementById('cancel').onclick = () => {
   parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
 }
+
+window.onmessage = async (event) => {
+  if (event.data.pluginMessage.type === "send") {
+    fetch(
+      `https://files.pickit.com/api/v2/files`,
+      {
+        headers: {
+          "Pickit-Api-Key": "apiuser-u4xj87dobizsmccgn4x94v79i47dht@pickit.com", // Pickit API Key retrieved from the API Dashboard.
+          "Pickit-Api-Secret": "hukg89r9lmbw1ptv3h1fjjb0dni0ha", // Pickit API Secret retrieved from the API Dashboard.
+          "Pickit-Api-Library": 'media'
+        },
+      }
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        // Clear array since I'm just looping through maxRecords
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+};
 
 </script>
