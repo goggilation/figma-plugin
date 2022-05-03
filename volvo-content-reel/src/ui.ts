@@ -2,6 +2,7 @@ import "./style/ui.css";
 import "./style/reset.css";
 import "./utils/resizer";
 import configs from "./contentreel.config.js";
+import { base } from "../node_modules/airtable/lib/airtable";
 
 let selectionSize = 0;
 let randomArr = [];
@@ -23,6 +24,7 @@ const pickitHeaders = {
   "Pickit-Api-Secret": `${configs.PICKIT_SECRET}`,
   "Pickit-Api-Library": "media",
 };
+const baseCall = "https://files.pickit.com/api/v2/files?page_limit=200"
 
 // Event listener for search
 searchBar.addEventListener("keydown", (e) => {
@@ -51,7 +53,7 @@ window.onmessage = async (event) => {
 
   // On startup run through sample pickit library to get a random array of images to populate with
   if (event.data.pluginMessage.style === "first-call") {
-    fetch(`https://files.pickit.com/api/v2/files?`, {
+    fetch(`${baseCall}`, {
       headers: pickitHeaders,
     })
       .then((res) => res.json())
@@ -72,8 +74,7 @@ window.onmessage = async (event) => {
 
   // Searching renders output with max page size of all found images
   if (event.data.pluginMessage.style === "search") {
-    fetch(
-      "https://files.pickit.com/api/v2/files?" +
+    fetch(`${baseCall}` +
         new URLSearchParams({
           page_limit: "200",
           search: event.data.pluginMessage.searchString,
@@ -160,9 +161,7 @@ const PopulateView = async () => {
     attachment.className = "attachment";
     attachment.width = imgFile.width;
     attachment.height = imgFile.height;
-    attachment.style.backgroundImage = `url(${imgFile.url})`;
-    attachment.style.backgroundSize = "contain";
-    attachment.style.backgroundPosition = "center";
+    attachment.src = imgFile.url;
 
     //listItem.appendChild(descriptions);
     listItem.appendChild(attachment);

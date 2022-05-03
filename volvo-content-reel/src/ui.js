@@ -27,6 +27,7 @@ const pickitHeaders = {
     "Pickit-Api-Secret": `${configs.PICKIT_SECRET}`,
     "Pickit-Api-Library": "media",
 };
+const baseCall = "https://files.pickit.com/api/v2/files?page_limit=200";
 // Event listener for search
 searchBar.addEventListener("keydown", (e) => {
     let searchTerm = "";
@@ -49,7 +50,7 @@ window.onmessage = (event) => __awaiter(void 0, void 0, void 0, function* () {
     }
     // On startup run through sample pickit library to get a random array of images to populate with
     if (event.data.pluginMessage.style === "first-call") {
-        fetch(`https://files.pickit.com/api/v2/files?`, {
+        fetch(`${baseCall}`, {
             headers: pickitHeaders,
         })
             .then((res) => res.json())
@@ -69,7 +70,7 @@ window.onmessage = (event) => __awaiter(void 0, void 0, void 0, function* () {
     }
     // Searching renders output with max page size of all found images
     if (event.data.pluginMessage.style === "search") {
-        fetch("https://files.pickit.com/api/v2/files?" +
+        fetch(`${baseCall}` +
             new URLSearchParams({
                 page_limit: "200",
                 search: event.data.pluginMessage.searchString,
@@ -139,9 +140,7 @@ const PopulateView = () => __awaiter(void 0, void 0, void 0, function* () {
         attachment.className = "attachment";
         attachment.width = imgFile.width;
         attachment.height = imgFile.height;
-        attachment.style.backgroundImage = `url(${imgFile.url})`;
-        attachment.style.backgroundSize = "contain";
-        attachment.style.backgroundPosition = "center";
+        attachment.src = imgFile.url;
         //listItem.appendChild(descriptions);
         listItem.appendChild(attachment);
         itemListDiv.appendChild(listItem);

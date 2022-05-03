@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 const clone = (val) => {
     return JSON.parse(JSON.stringify(val));
 };
-figma.showUI(__html__, { width: 450, height: 450 });
+figma.showUI(__html__, { width: 650, height: 650 });
 figma.ui.postMessage({ type: "networkRequest", style: "first-call" });
 figma.ui.postMessage({ type: "multiples", value: figma.currentPage.selection.length > 1, size: figma.currentPage.selection.length });
 figma.ui.onmessage = (msg) => __awaiter(this, void 0, void 0, function* () {
