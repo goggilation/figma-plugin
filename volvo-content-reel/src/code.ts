@@ -8,7 +8,10 @@ figma.ui.postMessage({ type: "multiples", value: figma.currentPage.selection.len
 
 figma.ui.onmessage = async (msg) => {
   if (msg.do === "load") {
-    figma.ui.postMessage({ type: "networkRequest", style: msg.style, searchString: msg.searchString });
+    if(msg.searchString != "")
+      figma.ui.postMessage({ type: "networkRequest", style: msg.style, searchString: msg.searchString });
+    else
+      figma.ui.postMessage({ type: "networkRequest", style: "first-call" });
   }
 
   if(msg.do === 'random'){

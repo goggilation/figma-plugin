@@ -15,7 +15,10 @@ figma.ui.postMessage({ type: "networkRequest", style: "first-call" });
 figma.ui.postMessage({ type: "multiples", value: figma.currentPage.selection.length > 1, size: figma.currentPage.selection.length });
 figma.ui.onmessage = (msg) => __awaiter(this, void 0, void 0, function* () {
     if (msg.do === "load") {
-        figma.ui.postMessage({ type: "networkRequest", style: msg.style, searchString: msg.searchString });
+        if (msg.searchString != "")
+            figma.ui.postMessage({ type: "networkRequest", style: msg.style, searchString: msg.searchString });
+        else
+            figma.ui.postMessage({ type: "networkRequest", style: "first-call" });
     }
     if (msg.do === 'random') {
         figma.ui.postMessage({ type: "multiples", value: true, size: figma.currentPage.selection.length, style: "random" });

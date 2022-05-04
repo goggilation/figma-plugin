@@ -13,6 +13,8 @@ import "./utils/resizer";
 import configs from "./contentreel.config.js";
 let selectionSize = 0;
 let randomArr = [];
+let loading = true;
+const loader = "<div class='skeleton-loader'></div>";
 let PickitMediaArray = [];
 let currentPage = 1;
 const previewSize = 0;
@@ -45,6 +47,8 @@ searchBar.addEventListener("keydown", (e) => {
 // On network request from the plugin, fetch information from Pickit.
 // TODO: Add offset instead of iteratiing on requestmax
 window.onmessage = (event) => __awaiter(void 0, void 0, void 0, function* () {
+    loading = !loading;
+    itemListDiv.innerHTML = loading ? loader : "";
     if (event.data.pluginMessage.type === "multiples") {
         selectionSize = event.data.pluginMessage.size;
     }
@@ -55,6 +59,7 @@ window.onmessage = (event) => __awaiter(void 0, void 0, void 0, function* () {
         })
             .then((res) => res.json())
             .then((response) => {
+            loading = false;
             // Clear array since I'm just looping through maxRecords
             PickitMediaArray = [];
             const responseArray = response.data;
@@ -79,6 +84,7 @@ window.onmessage = (event) => __awaiter(void 0, void 0, void 0, function* () {
         })
             .then((res) => res.json())
             .then((response) => {
+            loading = false;
             // Clear array since I'm just looping through maxRecords
             PickitMediaArray = [];
             const responseArray = response.data;
